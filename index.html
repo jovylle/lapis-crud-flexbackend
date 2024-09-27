@@ -3,59 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD API Example</title>
+    <title>Save and Retrieve Name and Quantity</title>
 </head>
 <body>
-    <h2>CRUD for Key-Value API</h2>
+    <h2>Save and Retrieve Name and Quantity</h2>
 
-    <!-- Create/Update Form -->
-    <h3>Add/Update Key-Value</h3>
-    <form id="addUpdateForm">
-        <label for="keyname">Key Name:</label><br>
-        <input type="text" id="keyname" name="keyname" required><br>
-        <label for="keyvalue">Key Value:</label><br>
-        <input type="text" id="keyvalue" name="keyvalue" required><br><br>
-        <button type="submit">Submit</button>
+    <!-- Form for Name and Quantity -->
+    <form id="saveForm">
+        <label for="itemname">Item Name:</label><br>
+        <input type="text" id="itemname" name="itemname" required><br><br>
+        <label for="itemquantity">Item Quantity:</label><br>
+        <input type="number" id="itemquantity" name="itemquantity" required><br><br>
+        <button type="submit">Save</button>
     </form>
 
-    <h3>Retrieve Key-Value</h3>
-    <form id="retrieveForm">
-        <label for="retrieveKeyname">Key Name to Retrieve:</label><br>
-        <input type="text" id="retrieveKeyname" name="retrieveKeyname" required><br><br>
-        <button type="submit">Retrieve</button>
-    </form>
-
-    <h4>Response:</h4>
+    <h3>Retrieved Data</h3>
     <pre id="response"></pre>
 
     <script>
         const postUrl = 'https://asia-southeast1-keynamevaluepairdb.cloudfunctions.net/postData';
         const getUrl = 'https://asia-southeast1-keynamevaluepairdb.cloudfunctions.net/getData';
 
-        // Create/Update Key-Value
-        document.getElementById('addUpdateForm').addEventListener('submit', async (e) => {
+        // Save Name and Quantity
+        document.getElementById('saveForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const keyname = document.getElementById('keyname').value;
-            const keyvalue = document.getElementById('keyvalue').value;
             
-            const response = await fetch(postUrl, {
+            const itemName = document.getElementById('itemname').value;
+            const itemQuantity = document.getElementById('itemquantity').value;
+
+            // Save the name to key "testitemname"
+            await fetch(postUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ keyname, keyvalue })
+                body: JSON.stringify({ keyname: 'testitemname', keyvalue: itemName })
             });
-            const result = await response.json();
-            document.getElementById('response').innerText = JSON.stringify(result, null, 2);
-        });
 
-        // Retrieve Key-Value
-        document.getElementById('retrieveForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const keyname = document.getElementById('retrieveKeyname').value;
-            const response = await fetch(`${getUrl}?keyname=${encodeURIComponent(keyname)}`);
-            const result = await response.json();
-            document.getElementById('response').innerText = JSON.stringify(result, null, 2);
+            // Save the quantity to key "testitemquantity"
+            await fetch(postUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ keyname: 'testitemquantity', keyvalue: itemQuantity })
+            });
+
+            // Retrieve and display the saved name
+            const nameResponse = await fetch(`${getUrl}?keyname=testitemname`);
+            const nameResult = await nameResponse.json();
+
+            // Retrieve and display the saved quantity
+            const quantityResponse = await fetch(`${getUrl}?keyname=testitemquantity`);
+            const quantityResult = await quantityResponse.json();
+
+            // Display results
+            document.getElementById('response').innerText = `
+                Item Name: ${nameResult.keyvalue} 
+                Item Quantity: ${quantityResult.keyvalue}
+            `;
         });
     </script>
 </body>
